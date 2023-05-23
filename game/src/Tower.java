@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Tower extends JPanel {
     private Block movingBlock;
     private java.util.List<Block> blocks;
+    private int score;
 
     public Tower() {
         blocks = new ArrayList<>();
@@ -14,7 +15,7 @@ public class Tower extends JPanel {
             movingBlock.move();
             repaint();
         });
-
+        score = 0;
         timer.start();
     }
 
@@ -22,27 +23,45 @@ public class Tower extends JPanel {
         Block lastBlock = blocks.isEmpty() ? null : blocks.get(blocks.size() - 1);
 
         if (lastBlock == null) {
-            addBlock();
+            // No blocks yet, add moving block to the tower
+            blocks.add(movingBlock);
+            // Create a new moving block
+            movingBlock = new Block(290 - movingBlock.getHeight(), 50, 0);
         } else {
             int overlapStart = Math.max(movingBlock.getX(), lastBlock.getX());
             int overlapWidth = movingBlock.getOverlap(lastBlock);
 
             if (overlapWidth <= 0) {
-                // Block missed entirely, create a new block of the same size at starting position
-                movingBlock = new Block(lastBlock.getY() - movingBlock.getHeight(), movingBlock.getWidth(), 0);
+                // Block missed entirely, show "Game Over" message
+                JOptionPane.showMessageDialog(this, "Game Over");
+                System.exit(0);
             } else {
                 // Adjust the current block width and position to the overlapped area
                 movingBlock.setX(overlapStart);
                 movingBlock.setWidth(overlapWidth);
-                addBlock();
-                // Create a new block of overlap size and position
-                movingBlock = new Block(lastBlock.getY() - lastBlock.getHeight(), overlapWidth, overlapStart);
+                // Move the block up to fill the empty space
+                movingBlock.setY(lastBlock.getY() - movingBlock.getHeight());
+                // Add moving block to the tower
+                blocks.add(movingBlock);
+                // Create a new moving block at the position just above the last block
+                // and with the width of the overlap
+                movingBlock = new Block(lastBlock.getY() - 2 * movingBlock.getHeight(), overlapWidth, 0);
+                score++;
             }
         }
     }
 
+
     public void addBlock() {
         blocks.add(movingBlock);
+    }
+
+    private int getMaxHeight() {
+        int maxHeight = 0;
+        for (Block block : blocks) {
+            maxHeight = Math.max(maxHeight, block.getY());
+        }
+        return maxHeight;
     }
 
     @Override
@@ -54,5 +73,8 @@ public class Tower extends JPanel {
         for (Block block : blocks) {
             block.draw(g);
         }
+
+        g.setColor(Color.BLACK);
+        g.drawString("Score =" + score, 10, 20);
     }
 }
