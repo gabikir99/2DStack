@@ -6,20 +6,26 @@ public class Block {
     private int width;
     private int height;
     private int direction;
+    private int speed;
 
-    public Block(int y, int width, int x) {
+    public Block(int y, int width, int x, int speed) {
         this.y = y;
         this.width = width;
         this.x = x;
         height = 10;
         direction = 1;
+        this.speed = speed;
     }
 
     public void move() {
-        x += direction;
+        x += direction * speed;
         if (x + width > 400 || x < 0) {
             direction *= -1;
         }
+    }
+
+    public int getSpeed(){
+        return speed;
     }
 
     public void draw(Graphics g) {
