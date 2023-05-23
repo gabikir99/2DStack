@@ -1,23 +1,35 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
 
 public class Game {
-    private final Tower tower;
-    private final Scanner scanner;
+    private JFrame frame;
+    private Tower tower;
 
     public Game() {
+        frame = new JFrame("Stacking Game");
         tower = new Tower();
-        scanner = new Scanner(System.in);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
+        frame.setLocationRelativeTo(null);
+        frame.add(tower);
+        frame.setVisible(true);
+
+        Action stopAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tower.tryToAddBlock();
+            }
+        };
+
+        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        frame.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(enter, "STOP_ACTION");
+        frame.getRootPane().getActionMap().put("STOP_ACTION", stopAction);
     }
 
-    public void play() {
-        while (true) {
-            System.out.print("Enter block size: ");
-            int size = scanner.nextInt();
-
-            if (!tower.addBlock(new Block(size))) {
-                System.out.println("Tower fell! Game over.");
-                break;
-            }
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Game::new);
     }
 }
